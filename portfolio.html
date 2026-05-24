@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shatha Abualrob — Game Developer</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#050a0f;--bg2:#0a1520;--bg3:#0f1e2e;
+  --accent:#00e5ff;--accent2:#7c3aed;--accent3:#f59e0b;
+  --text:#e2e8f0;--muted:#64748b;--border:#1e3a5f;--card:#0d1b2a;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:16px;line-height:1.6;overflow-x:hidden}
+canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:0.35;pointer-events:none}
+.wrap{position:relative;z-index:1}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 2.5rem;background:rgba(5,10,15,0.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.logo{font-family:'Orbitron',monospace;font-weight:900;font-size:1.1rem;color:var(--accent);letter-spacing:2px}
+.logo span{color:var(--accent2)}
+nav ul{display:flex;gap:2rem;list-style:none}
+nav ul a{color:var(--muted);text-decoration:none;font-family:'Share Tech Mono',monospace;font-size:0.78rem;letter-spacing:1px;text-transform:uppercase;transition:color .2s}
+nav ul a:hover{color:var(--accent)}
+
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:8rem 2.5rem 4rem;position:relative;overflow:hidden}
+.hero-tag{font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;opacity:0;animation:fadeUp .6s .3s forwards}
+.hero h1{font-family:'Orbitron',monospace;font-size:clamp(2.8rem,6vw,5.5rem);font-weight:900;line-height:1.05;margin-bottom:1.5rem;opacity:0;animation:fadeUp .6s .5s forwards}
+.hero h1 .name{color:var(--accent);position:relative}
+.hero h1 .role{display:block;font-size:clamp(1rem,2.5vw,1.6rem);color:var(--accent2);font-weight:400;margin-top:.5rem;letter-spacing:4px}
+.hero-desc{max-width:540px;color:var(--muted);font-size:1rem;line-height:1.8;margin-bottom:2.5rem;opacity:0;animation:fadeUp .6s .7s forwards}
+.hero-btns{display:flex;gap:1rem;flex-wrap:wrap;opacity:0;animation:fadeUp .6s .9s forwards}
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 1.75rem;font-family:'Share Tech Mono',monospace;font-size:.8rem;letter-spacing:1px;text-transform:uppercase;text-decoration:none;border-radius:2px;cursor:pointer;transition:all .2s;border:none}
+.btn-primary{background:var(--accent);color:#000;font-weight:700}
+.btn-primary:hover{background:#fff;transform:translateY(-2px)}
+.btn-outline{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.btn-outline:hover{background:rgba(0,229,255,.08);transform:translateY(-2px)}
+.hero-footer{position:absolute;bottom:3rem;left:2.5rem;font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--muted);letter-spacing:2px;display:flex;align-items:center;gap:.75rem}
+.hero-footer::before{content:'';display:block;width:40px;height:1px;background:var(--muted)}
+
+section{padding:5rem 2.5rem;max-width:1100px;margin:0 auto}
+.section-label{font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--accent);letter-spacing:4px;text-transform:uppercase;display:flex;align-items:center;gap:1rem;margin-bottom:1rem}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border);max-width:200px}
+.section-title{font-family:'Orbitron',monospace;font-size:clamp(1.4rem,3vw,2rem);font-weight:700;margin-bottom:3rem;color:var(--text)}
+
+.skills-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+.skill-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:1.25rem 1.5rem;position:relative;overflow:hidden;transition:border-color .2s,transform .2s}
+.skill-card:hover{border-color:var(--accent);transform:translateY(-3px)}
+.skill-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .3s}
+.skill-card:hover::before{transform:scaleX(1)}
+.skill-icon{font-size:1.5rem;margin-bottom:.5rem}
+.skill-name{font-family:'Orbitron',monospace;font-size:.72rem;font-weight:700;color:var(--accent);letter-spacing:1px;margin-bottom:.25rem}
+.skill-desc{font-size:.85rem;color:var(--muted)}
+.skill-bar{margin-top:.75rem;height:2px;background:var(--border);border-radius:2px;overflow:hidden}
+.skill-fill{height:100%;background:var(--accent);border-radius:2px;width:0;transition:width 1.2s ease}
+
+.projects-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem}
+.project-card{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;transition:border-color .2s,transform .2s}
+.project-card:hover{border-color:var(--accent2);transform:translateY(-4px)}
+.project-thumb{height:180px;display:flex;align-items:center;justify-content:center;font-size:4rem;position:relative;overflow:hidden}
+.project-thumb.flappy{background:linear-gradient(135deg,#0a1f0f,#0d3320)}
+.project-thumb.jam{background:linear-gradient(135deg,#1a0a2e,#2d1060)}
+.project-thumb.wip{background:linear-gradient(135deg,#1a1205,#2d2010)}
+.grid-bg{position:absolute;top:0;left:0;right:0;bottom:0;background-image:linear-gradient(rgba(0,229,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.04) 1px,transparent 1px);background-size:28px 28px}
+.emoji{position:relative;z-index:1}
+.project-body{padding:1.25rem 1.5rem}
+.project-tags{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.75rem}
+.tag{font-family:'Share Tech Mono',monospace;font-size:.65rem;letter-spacing:1px;padding:.2rem .6rem;border-radius:2px;background:rgba(0,229,255,.08);color:var(--accent);border:1px solid rgba(0,229,255,.2)}
+.tag.purple{background:rgba(124,58,237,.1);color:#a78bfa;border-color:rgba(124,58,237,.3)}
+.tag.amber{background:rgba(245,158,11,.08);color:var(--accent3);border-color:rgba(245,158,11,.2)}
+.project-name{font-family:'Orbitron',monospace;font-size:1rem;font-weight:700;color:var(--text);margin-bottom:.5rem}
+.project-desc{font-size:.9rem;color:var(--muted);line-height:1.6}
+.project-links{display:flex;gap:.75rem;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)}
+.project-link{font-family:'Share Tech Mono',monospace;font-size:.7rem;letter-spacing:1px;color:var(--accent);text-decoration:none;text-transform:uppercase;transition:color .2s}
+.project-link:hover{color:#fff}
+
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center}
+@media(max-width:640px){.about-grid{grid-template-columns:1fr}}
+.about-text p{color:var(--muted);line-height:1.9;margin-bottom:1rem;font-size:1rem}
+.about-text p strong{color:var(--text)}
+.status-box{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:1.5rem}
+.status-row{display:flex;align-items:center;gap:.75rem;padding:.65rem 0;border-bottom:1px solid var(--border);font-size:.85rem}
+.status-row:last-child{border-bottom:none}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);flex-shrink:0}
+.dot.amber{background:var(--accent3);box-shadow:0 0 8px var(--accent3)}
+.dot.purple{background:#a78bfa;box-shadow:0 0 8px #a78bfa}
+.status-label{color:var(--muted);min-width:90px;font-family:'Share Tech Mono',monospace;font-size:.68rem;letter-spacing:1px}
+.status-val{color:var(--text)}
+
+.contact-box{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:3rem;text-align:center;max-width:600px;margin:0 auto}
+.contact-box p{color:var(--muted);margin-bottom:2rem;font-size:1rem}
+.contact-links{display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;margin-top:1.5rem}
+.contact-pill{display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1.2rem;border:1px solid var(--border);border-radius:2px;font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--muted);text-decoration:none;letter-spacing:1px;text-transform:uppercase;transition:all .2s}
+.contact-pill:hover{border-color:var(--accent);color:var(--accent)}
+
+footer{text-align:center;padding:2rem;border-top:1px solid var(--border);font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--muted);letter-spacing:2px}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+.glitch{position:relative;display:inline-block}
+.glitch::before,.glitch::after{content:attr(data-text);position:absolute;top:0;left:0;font-family:'Orbitron',monospace;font-weight:900}
+.glitch::before{color:var(--accent2);animation:g1 4s infinite;clip-path:polygon(0 0,100% 0,100% 35%,0 35%)}
+.glitch::after{color:rgba(0,229,255,.4);animation:g2 4s infinite;clip-path:polygon(0 65%,100% 65%,100% 100%,0 100%)}
+@keyframes g1{0%,88%,100%{transform:none}90%{transform:translate(-3px,0)}92%{transform:translate(3px,0)}94%{transform:translate(-1px,0)}}
+@keyframes g2{0%,88%,100%{transform:none}91%{transform:translate(3px,0)}93%{transform:translate(-3px,0)}95%{transform:translate(1px,0)}}
+
+.cursor{display:inline-block;width:3px;height:.85em;background:var(--accent);margin-left:3px;vertical-align:middle;animation:blink 1s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+@media(max-width:768px){
+  nav ul{display:none}
+  .hero{padding:6rem 1.5rem 3rem}
+  section{padding:3.5rem 1.5rem}
+  .contact-box{padding:2rem 1.5rem}
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+
+<div class="wrap">
+
+  <nav>
+    <div class="logo">S<span>.</span>ABUALROB</div>
+    <ul>
+      <li><a href="#about">About</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <p class="hero-tag">// portfolio_v1.0 — initializing</p>
+    <h1>
+      <span class="glitch" data-text="SHATHA ABUALROB">SHATHA ABUALROB</span>
+      <span class="role">Aspiring Game Developer<span class="cursor"></span></span>
+    </h1>
+    <p class="hero-desc">
+      Computer Engineering student at Birzeit University 🇵🇸 — building games with Unity & C#, one frame at a time. Turning ideas into playable worlds.
+    </p>
+    <div class="hero-btns">
+      <a href="#projects" class="btn btn-primary">View Projects</a>
+      <a href="#contact" class="btn btn-outline">Get In Touch</a>
+    </div>
+    <div class="hero-footer">BIRZEIT UNIVERSITY &nbsp;·&nbsp; 3RD YEAR &nbsp;·&nbsp; COMP ENG</div>
+  </div>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <p class="section-label">01 // About</p>
+    <h2 class="section-title">Player Profile</h2>
+    <div class="about-grid">
+      <div class="about-text">
+        <p>I'm <strong>Shatha Abualrob</strong>, a Computer Engineering student with a serious passion for game development. I love applying technical skills where code meets creativity — in games.</p>
+        <p>I work primarily in <strong>Unity 2D & 3D</strong> with <strong>C#</strong>, and I've competed in Game Jams. My goal is to grow into a <strong>Gameplay Programmer</strong> at a studio I love.</p>
+        <p>Every project teaches me something new. I'm building my path one game at a time.</p>
+      </div>
+      <div class="status-box">
+        <div class="status-row"><div class="dot"></div><span class="status-label">STATUS</span><span class="status-val">Open to internships</span></div>
+        <div class="status-row"><div class="dot amber"></div><span class="status-label">LOCATION</span><span class="status-val">West Bank, Palestine 🇵🇸</span></div>
+        <div class="status-row"><div class="dot purple"></div><span class="status-label">STUDYING</span><span class="status-val">Birzeit University</span></div>
+        <div class="status-row"><div class="dot"></div><span class="status-label">ENGINE</span><span class="status-val">Unity 2D / 3D</span></div>
+        <div class="status-row"><div class="dot amber"></div><span class="status-label">LANGUAGES</span><span class="status-val">C# · Java · Python</span></div>
+        <div class="status-row"><div class="dot purple"></div><span class="status-label">GOAL</span><span class="status-val">Gameplay Programmer</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills">
+    <p class="section-label">02 // Skills</p>
+    <h2 class="section-title">Tech Stack</h2>
+    <div class="skills-grid">
+      <div class="skill-card" data-fill="85">
+        <div class="skill-icon">🎮</div>
+        <div class="skill-name">Unity Engine</div>
+        <div class="skill-desc">2D & 3D, physics, prefabs, Cinemachine, scene management</div>
+        <div class="skill-bar"><div class="skill-fill"></div></div>
+      </div>
+      <div class="skill-card" data-fill="80">
+        <div class="skill-icon">⚙️</div>
+        <div class="skill-name">C#</div>
+        <div class="skill-desc">Game scripting, OOP, MonoBehaviour, coroutines</div>
+        <div class="skill-bar"><div class="skill-fill"></div></div>
+      </div>
+      <div class="skill-card" data-fill="72">
+        <div class="skill-icon">🖥️</div>
+        <div class="skill-name">Visual Studio</div>
+        <div class="skill-desc">Debugging, IDE workflow, code navigation</div>
+        <div class="skill-bar"><div class="skill-fill"></div></div>
+      </div>
+      <div class="skill-card" data-fill="68">
+        <div class="skill-icon">🐙</div>
+        <div class="skill-name">Git & GitHub</div>
+        <div class="skill-desc">Version control, project hosting, portfolio</div>
+        <div class="skill-bar"><div class="skill-fill"></div></div>
+      </div>
+      <div class="skill-card" data-fill="60">
+        <div class="skill-icon">☕</div>
+        <div class="skill-name">Java / Android</div>
+        <div class="skill-desc">Mobile dev, fragments, OOP fundamentals</div>
+        <div class="skill-bar"><div class="skill-fill"></div></div>
+      </div>
+      <div class="skill-card" data-fill="45">
+        <div class="skill-icon">🚀</div>
+        <div class="skill-name">C++ (Learning)</div>
+        <div class="skill-desc">Next step — for Unreal Engine & game engine programming</div>
+        <div class="skill-bar"><div class="skill-fill" style="background:var(--accent3)"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <p class="section-label">03 // Projects</p>
+    <h2 class="section-title">Deployed Builds</h2>
+    <div class="projects-grid">
+      <div class="project-card">
+        <div class="project-thumb flappy">
+          <div class="grid-bg"></div>
+          <span class="emoji">🐦</span>
+        </div>
+        <div class="project-body">
+          <div class="project-tags">
+            <span class="tag">Unity 2D</span>
+            <span class="tag">C#</span>
+            <span class="tag purple">First Project</span>
+          </div>
+          <div class="project-name">Flappy Bird Clone</div>
+          <p class="project-desc">Full Flappy Bird recreation — physics, procedural pipe generation, score tracking, background music, and sound effects. My first shipped Unity game.</p>
+          <div class="project-links">
+            <a href="https://github.com/Holmes-99/flappy-bird-unity" class="project-link" target="_blank">↗ View on GitHub</a>
+          </div>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-thumb jam">
+          <div class="grid-bg"></div>
+          <span class="emoji">⚡</span>
+        </div>
+        <div class="project-body">
+          <div class="project-tags">
+            <span class="tag">Unity</span>
+            <span class="tag purple">Game Jam</span>
+            <span class="tag amber">June / July 2026</span>
+          </div>
+          <div class="project-name">Game Jam — Upcoming</div>
+          <p class="project-desc">Preparing for my first Game Jam competition. Will design, build, and ship a complete game under time-constrained rules. Watch this space.</p>
+          <div class="project-links">
+            <span class="project-link" style="opacity:.4;cursor:default">In Progress — Link Soon</span>
+          </div>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-thumb wip">
+          <div class="grid-bg"></div>
+          <span class="emoji">🔧</span>
+        </div>
+        <div class="project-body">
+          <div class="project-tags">
+            <span class="tag">Unity 3D</span>
+            <span class="tag amber">In Development</span>
+          </div>
+          <div class="project-name">Next Build — 3D</div>
+          <p class="project-desc">Expanding into 3D game development. Building camera systems, gameplay mechanics, and level design. More details coming soon.</p>
+          <div class="project-links">
+            <span class="project-link" style="opacity:.4;cursor:default">Coming Soon</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <p class="section-label">04 // Contact</p>
+    <h2 class="section-title">Transmit Signal</h2>
+    <div class="contact-box">
+      <p>Looking for game dev internships and always open to collaborating on interesting projects. If you're building something cool — let's talk.</p>
+      <a href="mailto:abualrubshatha1@gmail.com" class="btn btn-primary" style="margin:0 auto">Send Message ↗</a>
+      <div class="contact-links">
+        <a href="https://github.com/Holmes-99" class="contact-pill" target="_blank">GitHub</a>
+        <a href="https://linkedin.com/in/shatha-abualrub" class="contact-pill" target="_blank">LinkedIn</a>
+        <a href="#" class="contact-pill" style="opacity:.4;pointer-events:none">Itch.io — soon</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    SHATHA ABUALROB &nbsp;·&nbsp; GAME DEVELOPER &nbsp;·&nbsp; BIRZEIT UNIVERSITY 🇵🇸 &nbsp;·&nbsp; © 2026
+  </footer>
+
+</div>
+
+<script>
+// Particle background
+const canvas = document.getElementById('bg');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [];
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+for (let i = 0; i < 90; i++) {
+  particles.push({
+    x: Math.random() * 1920, y: Math.random() * 1080,
+    vx: (Math.random() - .5) * .4, vy: (Math.random() - .5) * .4,
+    size: Math.random() * 1.8 + .4,
+    opacity: Math.random() * .5 + .1,
+    color: Math.random() > .65 ? '0,229,255' : Math.random() > .5 ? '124,58,237' : '100,116,139'
+  });
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  // draw subtle grid lines
+  ctx.strokeStyle = 'rgba(0,229,255,0.025)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 60) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+  for (let y = 0; y < H; y += 60) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+    if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${p.color},${p.opacity})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(draw);
+}
+draw();
+
+// Animate skill bars on scroll
+const skillObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('.skill-card').forEach((card, i) => {
+        const fill = card.querySelector('.skill-fill');
+        const pct = card.dataset.fill;
+        setTimeout(() => { fill.style.width = pct + '%'; }, i * 100);
+      });
+    }
+  });
+}, { threshold: 0.2 });
+
+document.querySelectorAll('#skills').forEach(s => skillObserver.observe(s));
+</script>
+</body>
+</html>
